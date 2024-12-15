@@ -13,7 +13,7 @@ class Package:
         zip_code: str,
         delivery_deadline: time,
         kgs: int,
-        notes: str,
+        notes: str | None = None,
     ):
         self.id = id
         self.address = address
