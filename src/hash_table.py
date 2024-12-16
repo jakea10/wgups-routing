@@ -34,7 +34,8 @@ class HashTable:
             self._resize_and_rehash()
 
         for index, pair in self._probe(key):
-            if pair is DELETED: continue  # collsion has occurred before
+            if pair is DELETED:
+                continue  # collsion has occurred before
             if pair is None or pair.key == key:  # new key or update
                 self._slots[index] = Pair(key, value)
                 break
