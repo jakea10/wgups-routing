@@ -1,2 +1,2 @@
 # WGUPUS Routing
-The aim of this project is to design and implement an algorithm to efficiently route "WGUPS" packages for daily local deliveries.
+The aim of this project is to design and implement an algorithm to efficiently route "WGUPS" packages for daily local deliveries using the Nearest Neighbor Algorithm and a custom implementation of a Hash Table.
