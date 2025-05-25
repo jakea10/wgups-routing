@@ -61,7 +61,11 @@ class Package:
     def __init__(
         self,
         id: int,
-        delivery_location: DeliveryLocation,
+        address: str,
+        city: str,
+        state: str,
+        zip_code: str,
+        # delivery_location: DeliveryLocation,
         delivery_deadline: time,
         kgs: int,
         notes: str | None = None,
@@ -77,7 +81,13 @@ class Package:
             notes (str | None): Optional additional notes for the package.
         """
         self.id = id
-        self.delivery_location = delivery_location
+        # self.address = address
+        # self.city = city
+        # self.state = state
+        # self.zip_code = zip_code
+        self.delivery_location = DeliveryLocation(
+            address, city, state, zip_code
+        )
         self.delivery_deadline = delivery_deadline
         self.kgs = kgs
         self.notes = notes
@@ -131,11 +141,34 @@ class Package:
         """
         return hash((
             self.id,
+            # self.address,
+            # self.city,
+            # self.state,
+            # self.zip_code,
             self.delivery_location,
             self.delivery_deadline,
             self.kgs,
             self.notes
         ))
+    
+    @classmethod
+    def from_dict(cls, dictionary: dict):
+        """
+        Creates a Package instance from a given dictionary.
+
+        Args:
+            dictionary(dict): The dictionary to populate the hash table with.
+        """
+        return cls(
+            id=int(dictionary['package_id']),
+            address=dictionary['address'],
+            city=dictionary['city'],
+            state=dictionary['state'],
+            zip_code=dictionary['zip_code'],
+            delivery_deadline=dictionary['delivery_deadline'],
+            kgs=dictionary['kgs'],
+            notes=dictionary['notes']
+        )
 
 
 class Truck:
