@@ -1,20 +1,22 @@
-from src.wgups_package import Package
-from src.delivery_location import DeliveryLocation
+from src.wgups import Package, DeliveryLocation
 import pytest
 import datetime
 
 
 @pytest.fixture
 def package() -> Package:
-    delivery_location = DeliveryLocation(
+    # delivery_location = DeliveryLocation(
+    #     address="195 W Oakland Ave",
+    #     city="Salt Lake City",
+    #     state="UT",
+    #     zip_code="84115"
+    # )
+    return Package(
+        id=1,
         address="195 W Oakland Ave",
         city="Salt Lake City",
         state="UT",
-        zip_code="84115"
-    )
-    return Package(
-        id=1,
-        delivery_location=delivery_location,
+        zip_code="84115",
         delivery_deadline=datetime.datetime.strptime("10:30 AM", "%I:%M %p").time(),
         kgs=21,
         notes="Handle with care"
@@ -57,12 +59,10 @@ def test_wgups_package_eq(package: Package):
     # Identical package
     package2 = Package(
         id=1,
-        delivery_location=DeliveryLocation(
-            address="195 W Oakland Ave",
-            city="Salt Lake City",
-            state="UT",
-            zip_code="84115",
-        ),
+        address="195 W Oakland Ave",
+        city="Salt Lake City",
+        state="UT",
+        zip_code="84115",
         delivery_deadline=datetime.time(hour=10, minute=30),
         kgs=21,
         notes="Handle with care",
@@ -72,12 +72,10 @@ def test_wgups_package_eq(package: Package):
     # Different package
     package3 = Package(
         id=2,  # Different ID
-        delivery_location=DeliveryLocation(
-            address="195 W Oakland Ave",
-            city="Salt Lake City",
-            state="UT",
-            zip_code="84115",
-        ),
+        address="195 W Oakland Ave",
+        city="Salt Lake City",
+        state="UT",
+        zip_code="84115",
         delivery_deadline=datetime.time(hour=10, minute=30),
         kgs=5, # Different kgs
         notes="Handle with care",

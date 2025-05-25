@@ -1,6 +1,6 @@
 # test_delivery_location.py
 
-from src.delivery_location import DeliveryLocation
+from src.wgups import DeliveryLocation
 import pytest
 
 
