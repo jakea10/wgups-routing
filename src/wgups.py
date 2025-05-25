@@ -3,9 +3,10 @@
 from datetime import time
 
 
-class DeliveryLocation():
+class Location():
     def __init__(
         self,
+        name: str,
         address: str,
         city: str,
         state: str,
@@ -30,16 +31,16 @@ class DeliveryLocation():
         Returns a developer-friendly string representation of the delivery location.
         """
         return (
-            f"DeliveryLocation(address='{self.address}', city='{self.city}', "
+            f"Location(address='{self.address}', city='{self.city}', "
             f"state='{self.state}', zip_code='{self.zip_code}')"
         )
     
 
     def __eq__(self, other):
-        """Compares two DeliveryLocation instances for equality."""
+        """Compares two Location instances for equality."""
         if self is other:
             return True
-        if not isinstance(other, DeliveryLocation):
+        if not isinstance(other, Location):
             return False
         return (
             self.address == other.address
@@ -50,7 +51,7 @@ class DeliveryLocation():
         )
     
     def __hash__(self):
-        """Hashes the DeliveryLocation based on its attributes."""
+        """Hashes the Location based on its attributes."""
         return hash((self.address, self.city, self.state, self.zip_code))
 
 
@@ -65,7 +66,7 @@ class Package:
         city: str,
         state: str,
         zip_code: str,
-        # delivery_location: DeliveryLocation,
+        # delivery_location: Location,
         delivery_deadline: time,
         kgs: int,
         notes: str | None = None,
@@ -75,7 +76,7 @@ class Package:
 
         Args:
             id (int): A unique identifier for the package.
-            delivery_location (DeliveryLocation): The location where the package needs to be delivered.
+            delivery_location (Location): The location where the package needs to be delivered.
             delivery_deadline (time): The deadline for the package delivery.
             kgs (int): The weight of the package in kilograms.
             notes (str | None): Optional additional notes for the package.
@@ -85,7 +86,7 @@ class Package:
         # self.city = city
         # self.state = state
         # self.zip_code = zip_code
-        self.delivery_location = DeliveryLocation(
+        self.delivery_location = Location(
             address, city, state, zip_code
         )
         self.delivery_deadline = delivery_deadline
@@ -173,25 +174,25 @@ class Package:
 
 class Truck:
     def __init__(
-            self, 
-            capacity: int, 
-            speed: int, 
-            packages: list, 
-            mileage: float, 
-            depart_time: time
+            self,
+            current_location: Location,
+            current_time: time = time(8),
+            packages_on_board: list[Package] = [],
+            miles_traveled: float = 0,
+            capacity: int = 16, 
+            speed: float = 18,
         ):
+        self.current_location = current_location
+        self.current_time = current_time
+        self.packages_on_board = packages_on_board
+        self.miles_traveled = miles_traveled
         self.capacity = capacity
         self.speed = speed
-        self.packages = packages
-        self.mileage = mileage
-        self.depart_time = depart_time
-        self.time = depart_time
-
 
 if __name__ == "__main__":
     import datetime
 
-    location = DeliveryLocation(
+    location = Location(
     address="195 W Oakland Ave",
     city="Salt Lake City",
     state="UT",

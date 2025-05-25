@@ -1,4 +1,4 @@
-from src.wgups import Package, DeliveryLocation
+from src.wgups import Package, Location
 import pytest
 import datetime
 
@@ -26,7 +26,7 @@ def package() -> Package:
 def test_should_create_package(package: Package):
     assert package is not None
     assert package.id == 1
-    assert isinstance(package.delivery_location, DeliveryLocation)
+    assert isinstance(package.delivery_location, Location)
     assert isinstance(package.delivery_deadline, datetime.time)
     assert package.kgs == 21
 

@@ -1,5 +1,5 @@
 from hash_table import HashTable
-from wgups import Package, Truck
+from wgups import Package, Truck, Location
 import csv
 import datetime
 
@@ -9,6 +9,7 @@ EOD = "5:00 PM"
 # ------------------------------------------------------------------------------
 # Initialize data structures
 # ------------------------------------------------------------------------------
+locations = HashTable(capacity=100)
 packages = HashTable(capacity=100)
 # TODO: create adjaceny matrix
 # TODO: create trucks
