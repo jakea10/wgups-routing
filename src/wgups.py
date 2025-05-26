@@ -129,22 +129,32 @@ class Package:
         )
 
 
-# class Truck:
-#     def __init__(
-#             self,
-#             current_location: Location,
-#             current_time: time = time(8),
-#             packages_on_board: list[Package] = [],
-#             miles_traveled: float = 0,
-#             capacity: int = 16, 
-#             speed: float = 18,
-#         ):
-#         self.current_location = current_location
-#         self.current_time = current_time
-#         self.packages_on_board = packages_on_board
-#         self.miles_traveled = miles_traveled
-#         self.capacity = capacity
-#         self.speed = speed
+class Truck:
+    def __init__(
+            self,
+            id: int,
+            capacity: int,
+            speed_mph: int,
+            current_location_id: int,
+            packages_on_board: list[Package],
+            mileage_traveled: float,
+            current_time: time,
+            is_available: bool,
+            return_to_hub_needed: bool,
+            route: list[int],
+            delivery_log: list[tuple[int, time]]
+        ):
+        self.id = id
+        self.capacity = capacity
+        self.speed_mph = speed_mph
+        self.current_location_id = current_location_id
+        self.packages_on_board = packages_on_board
+        self.mileage_traveled = mileage_traveled
+        self.current_time = current_time
+        self.is_available = is_available
+        self.return_to_hub_needed = return_to_hub_needed
+        self.route = route
+        self.delivery_log = delivery_log
 
 
 if __name__ == "__main__":
