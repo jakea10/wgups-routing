@@ -39,6 +39,10 @@ def load_package_data(package_file: str, hash_table: HashTable) -> None:
             hash_table[package.id] = package
 
 
+def load_address_data(address_file: str):
+    pass
+
+
 # ------------------------------------------------------------------------------
 # Initialize data structures
 # ------------------------------------------------------------------------------
@@ -54,10 +58,10 @@ load_package_data(package_file, packages)
 print(packages[2])
 
 # ------------------------------------------------------------------------------
-# Handle special notes/constraints
+# Load distance data
 # ------------------------------------------------------------------------------
 
 
 # ------------------------------------------------------------------------------
-# Initialize trucks
+# 
 # ------------------------------------------------------------------------------
