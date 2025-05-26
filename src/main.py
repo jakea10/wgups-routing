@@ -191,20 +191,45 @@ def assign_packages_to_trucks(packages: HashTable, trucks: list[Truck], address_
 
 
 # ------------------------------------------------------------------------------
-#       Initialize data structures and load data
+#       Main
 # ------------------------------------------------------------------------------
-packages = HashTable(capacity=100)
-# TODO: create trucks
+def main():
+    # Init packages ht
+    packages = HashTable(capacity=100)
 
-# Load package data
-package_file = "wgups-routing/data/packages.csv"
-load_package_data(package_file, packages)
+    # Load package data
+    package_file = "wgups-routing/data/packages.csv"
+    load_package_data(package_file, packages)
 
-# Load address data
-address_file = "wgups-routing/data/addresses.csv"
-address_to_id_map, id_to_address_map = load_address_data(address_file)
-num_addresses = len(id_to_address_map)
+    # Load address data
+    address_file = "wgups-routing/data/addresses.csv"
+    address_to_id_map, id_to_address_map = load_address_data(address_file)
+    num_addresses = len(id_to_address_map)
 
-# Load distance data
-distance_file = "wgups-routing/data/distances.csv"
-distance_matrix = load_distance_data(distance_file, num_addresses)
+    # Load distance data
+    distance_file = "wgups-routing/data/distances.csv"
+    distance_matrix = load_distance_data(distance_file, num_addresses)
+
+    # Create trucks
+    trucks = create_trucks()
+
+    # TODO: Handle special case: Package 9 has wrong address until 10:20 AM
+
+    # Assign packages
+    assign_packages_to_trucks(packages, trucks, address_to_id_map)
+    for truck in trucks:
+        print(f"Truck {truck.id} loaded with {len(truck.packages_on_board)} / {TRUCK_CAPACITY} packages")
+
+    # Truck 1 and 2 depart at 8:00 AM
+    # Truck 3 departs at 9:05 AM after delayed packages arrive
+    trucks[2].current_time = datetime.time(9, 5)
+
+    # TODO: Simulate deliveries for all trucks
+
+    # TODO: Print final results
+
+    # TODO: Interactive lookup interface
+
+
+if __name__ == "__main__":
+    main()
