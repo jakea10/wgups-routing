@@ -234,6 +234,20 @@ def nearest_neighbor_route(truck: Truck, distance_matrix: list[list], address_to
     return route
 
 
+def calculate_time_from_distance(distance: float, speed_mph: int) -> datetime.timedelta:
+    """Calculate travel time based on distance and speed."""
+    hours = distance / speed_mph
+    return datetime.timedelta(hours=hours)
+
+
+def add_time(time_obj: datetime.time, delta: datetime.timedelta) -> datetime.time:
+    """Add a timedelta to a time object."""
+    # Convert time to datetime, add the delta, and convert back to time obj
+    dummy_date = datetime.datetime.combine(datetime.date.today(), time_obj)
+    new_datetime = dummy_date + delta
+    return new_datetime.time()
+
+
 # ------------------------------------------------------------------------------
 #       Main
 # ------------------------------------------------------------------------------
