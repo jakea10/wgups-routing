@@ -1,6 +1,6 @@
 # Jacob Atencio, Student ID: 001304752
 from hash_table import HashTable
-from wgups import Package, Truck
+from wgups import Package, PackageStatus, Truck
 import csv
 import datetime
 
@@ -124,7 +124,71 @@ def create_trucks() -> list[Truck]:
             delivery_log=[]
         )
         trucks.append(truck)
+
     return trucks
+
+
+def assign_packages_to_trucks(packages: HashTable, trucks: list[Truck], address_to_id_map: dict) -> None:
+    """
+    Assign packages to trucks based on delivery constraints and efficiency.
+    """
+    # Groupd packages by sepcial reqs
+    truck2_only = []  # Packages that can only be on truck 2
+    early_deadline = []  # Packages with early deadlines
+    delayed_packages = []  # Packages delayed until 9:05 AM
+    grouped_packages = []  # Packages that must be delivered together
+    regular_packages = []  # All other packages
+
+    # Separate packages per constraints
+    for package in packages.values:
+        if package.notes and "Can only be on truck 2" in package.notes:
+            truck2_only.append(package)
+        elif package.notes and "Delayed on flight" in package.notes:
+            delayed_packages.append(package)
+        elif package.id in [13, 14, 15, 16, 19, 20]:
+            grouped_packages.append(package)
+        elif package.delivery_deadline < datetime.time(10, 30):
+            early_deadline.append(package)
+        else:
+            regular_packages.append(package)
+    
+    # Assign truck 2 only packages
+    for package in truck2_only:
+        trucks[1].add_package(package)
+        package.status = PackageStatus.EN_ROUTE
+    
+    # Assign early deadline packages to truck 1 (departs first)
+    for package in early_deadline:
+        if len(trucks[0].packages_on_board) < TRUCK_CAPACITY:
+            trucks[0].add_package(package)
+            package.status = PackageStatus.EN_ROUTE
+
+    # Handle grouped packages (13, 14, 15, 16, 19, and 20)
+    for package in grouped_packages:
+        if len(trucks[0].packages_on_board) < TRUCK_CAPACITY:
+            trucks[0].add_package(package)
+            package.status = PackageStatus.EN_ROUTE
+
+    # Assign delayed packages to truck 3 (departs after 9:05 AM)
+    for package in delayed_packages:
+        if len(trucks[2].packages_on_board) < TRUCK_CAPACITY:
+            trucks[2].add_package(package)
+            package.status = PackageStatus.EN_ROUTE
+    
+    # Distribute remaining packages
+    truck_index = 0
+    for package in regular_packages:
+        if package.status == PackageStatus.EN_ROUTE:
+            continue
+
+        # Find truck with available capacity
+        while len(trucks[truck_index].packages_on_board) >= TRUCK_CAPACITY:
+            truck_index = (truck_index + 1) % 3  # there are only 3 trucks, so wrap around if necessary
+        
+        trucks[truck_index].add_package(package)
+        package.status = PackageStatus.EN_ROUTE
+        truck_index = (truck_index + 1) % 3
+
 
 # ------------------------------------------------------------------------------
 #       Initialize data structures and load data
