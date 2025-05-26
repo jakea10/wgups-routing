@@ -90,7 +90,6 @@ def load_distance_data(distance_file: str, num_addresses: int, header_row: bool 
 # Initialize data structures
 # ------------------------------------------------------------------------------
 packages = HashTable(capacity=100)
-# TODO: create adjaceny matrix
 # TODO: create trucks
 
 # ------------------------------------------------------------------------------
@@ -98,7 +97,7 @@ packages = HashTable(capacity=100)
 # ------------------------------------------------------------------------------
 package_file = "wgups-routing/data/packages.csv"
 load_package_data(package_file, packages)
-# print(packages[2])
+# print(packages.get(9))
 
 # ------------------------------------------------------------------------------
 # Load address data
@@ -113,19 +112,19 @@ num_addresses = len(id_to_address_map)
 # ------------------------------------------------------------------------------
 # Load distance data
 # ------------------------------------------------------------------------------
-distance_file = "wgups-routing/data/distances_new.csv"
+distance_file = "wgups-routing/data/distances.csv"
 distance_matrix = load_distance_data(distance_file, num_addresses)
 # for i in range(len(distance_matrix)):
 #     print(f"{id_to_address_map[i]}: {distance_matrix[i]}")
 
-package_1: Package = packages.get(1)
-package_2: Package = packages.get(2)
+# package_1: Package = packages.get(1)
+# package_2: Package = packages.get(2)
 
-address_1_id = address_to_id_map.get(package_1.address)
-address_2_id = address_to_id_map.get(package_2.address)
+# address_1_id = address_to_id_map.get(package_1.address)
+# address_2_id = address_to_id_map.get(package_2.address)
 
-if address_1_id is not None and address_2_id is not None:
-    distance = distance_matrix[address_1_id][address_2_id]
-    print("Distance between package 1 and package 2 addresses:", distance)
-else:
-    print("Could not find address ID for one or both packages.")
+# if address_1_id is not None and address_2_id is not None:
+#     distance = distance_matrix[address_1_id][address_2_id]
+#     print("Distance between package 1 and package 2 addresses:", distance)
+# else:
+#     print("Could not find address ID for one or both packages.")
