@@ -1,6 +1,6 @@
 # Jacob Atencio, Student ID: 001304752
 from hash_table import HashTable
-from wgups import Package
+from wgups import Package, Truck
 import csv
 import datetime
 
@@ -105,6 +105,26 @@ def load_distance_data(distance_file: str, num_addresses: int, header_row: bool 
 
     return distance_matrix
 
+
+def create_trucks() -> list[Truck]:
+    """Create and return a list of 3 trucks with default settings."""
+    trucks = []
+    for i in range(1, 4):
+        truck = Truck(
+            id=i,
+            capacity=TRUCK_CAPACITY,
+            speed_mph=TRUCK_SPEED_MPH,
+            current_location_id=HUB_ADDRESS_ID,
+            packages_on_board=[],
+            mileage_traveled=0.0,
+            current_time=START_TIME,
+            is_available=True,
+            return_to_hub_needed=False,
+            route=[],
+            delivery_log=[]
+        )
+        trucks.append(truck)
+    return trucks
 
 # ------------------------------------------------------------------------------
 #       Initialize data structures and load data
