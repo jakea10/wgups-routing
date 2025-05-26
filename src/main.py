@@ -48,6 +48,13 @@ def load_package_data(package_file: str, hash_table: HashTable) -> None:
 def load_address_data(address_file: str) -> tuple[dict, list]:
     """
     Parses address data from a CSV file.
+    Maps addresses to their corresponding IDs and provides reverse lookup.
+
+    Args:
+        address_file (str): The path to the addresses.csv file.
+    
+    Returns:
+        tuple[dict, list]: A tuple containing the address_to_id_map (dict) and the id_to_address_map (list).
     """
     address_to_id_map = {}  # Maps addresses to corresponding indices in distance matrix
     id_to_address_map = []  # For reverse lookup (i.e. lookup address by ID)
@@ -68,6 +75,14 @@ def load_address_data(address_file: str) -> tuple[dict, list]:
 def load_distance_data(distance_file: str, num_addresses: int, header_row: bool = False) -> list[list]:
     """
     Parses distance data from a CSV file.
+
+    Args:
+        distance_file (str): The path to the distances.csv file.
+        num_addresses (int): The total number of addresses (size of the square matrix).
+        header_row (bool): Whether or not there is a header row in the distance_file. Defaults to False.
+
+    Returns:
+        list[list]: A 2D list representing the distance matrix.
     """
     # Initialize a 2D matrix based on num_addresses with zeros as a placeholder
     distance_matrix = [[0.0 for _ in range(num_addresses)] for _ in range(num_addresses)]
@@ -92,7 +107,7 @@ def load_distance_data(distance_file: str, num_addresses: int, header_row: bool 
 
 
 # ------------------------------------------------------------------------------
-# Initialize data structures and load data
+#       Initialize data structures and load data
 # ------------------------------------------------------------------------------
 packages = HashTable(capacity=100)
 # TODO: create trucks

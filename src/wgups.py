@@ -155,6 +155,35 @@ class Truck:
         self.return_to_hub_needed = return_to_hub_needed
         self.route = route
         self.delivery_log = delivery_log
+    
+    def add_package(self, package: Package) -> None:
+        if len(self.packages_on_board) >= self.capacity:
+            raise ValueError(f"Truck {self.id} is at max package capacity")
+        
+        if package in self.packages_on_board:
+            raise ValueError(f"Truck {self.id} already contains {repr(package)}")
+        
+        self.packages_on_board.append(package)
+    
+    def remove_package(self, package: Package) -> None:
+        try:
+            self.packages_on_board.remove(package)
+        except ValueError:
+            raise ValueError(f"Not found on Truck {self.id}: {repr(package)}")
+
+    def list_packages(self) -> None:
+        if len(self.packages_on_board) > 0:
+            print(f"Packages on board Truck {self.id}:")
+            for package in self.packages_on_board:
+                print(f"  - {repr(package)}")
+        else:
+            print(f"Packages on board Truck {self.id}: None")
+
+    def deliver_package(self, package: Package, delivery_time: time) -> None:
+        package.status = PackageStatus.DELIVERED
+        package.delivery_time = delivery_time
+        self.delivery_log.append((package.id, delivery_time))
+        self.packages_on_board.remove(package)
 
 
 if __name__ == "__main__":
@@ -171,5 +200,25 @@ if __name__ == "__main__":
         notes="Handle with care"
     )
 
-    print(my_package)
-    print(repr(my_package))
+    # print(my_package)
+    
+    truck_1 = Truck(
+        id=1,
+        capacity=16,
+        speed_mph=18,
+        current_location_id=0,
+        packages_on_board=[],
+        mileage_traveled=0.0,
+        current_time=datetime.time(8, 0),
+        is_available=True,
+        return_to_hub_needed=False,
+        route=[],
+        delivery_log=[]
+    )
+
+    truck_1.add_package(my_package)
+    truck_1.add_package(my_package)
+    truck_1.list_packages()
+    truck_1.remove_package(my_package)
+    truck_1.list_packages()
+    truck_1.remove_package(my_package)
