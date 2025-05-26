@@ -248,6 +248,55 @@ def add_time(time_obj: datetime.time, delta: datetime.timedelta) -> datetime.tim
     return new_datetime.time()
 
 
+def deliver_packages(
+        truck: Truck,
+        distance_matrix: list[list],
+        address_to_id_map: dict,
+        packages: HashTable
+    ) -> None:
+    """
+    Simulate package delivery for a truck following its optimized route.
+
+    Args:
+        truck: The truck making package deliveries
+        distance_matrix: 2D list of distances between addresses
+        address_to_id_map: Maps addresses to their matrix indices
+        packages: Hash table containing all packages
+    """
+    # Generate optimized route
+    truck.route = nearest_neighbor_route(truck, distance_matrix, address_to_id_map)
+
+    current_location = truck.current_location_id
+    current_time = truck.current_time
+
+    for destination_id in truck.route:
+        # Calculate travel time to destination
+        distance = distance_matrix[current_location][destination_id]
+        travel_time = calculate_time_from_distance(distance, truck.speed_mph)
+
+        # Update truck's location and time
+        truck.mileage_traveled += distance
+        current_time = add_time(current_time, travel_time)
+        truck.current_location_id = destination_id
+        truck.current_time = current_time
+
+        # Deliver all packages for this address
+        for package in truck.get_packages_at_address(destination_id, address_to_id_map):
+            truck.deliver_package(package, current_time)
+            # Update package status in main hash table
+            packages[package.id].status = PackageStatus.DELIVERED
+            packages[package.id].delivery_time = current_time
+
+        current_location = destination_id
+    
+    # All packages delviered, return to hub
+    distance_to_hub = distance_matrix[truck.current_location_id][HUB_ADDRESS_ID]
+    travel_time_to_hub = calculate_time_from_distance(distance_to_hub, truck.speed_mph)
+    truck.mileage_traveled += distance_to_hub
+    truck.current_time = add_time(truck.current_time, travel_time_to_hub)
+    truck.current_location_id = HUB_ADDRESS_ID
+
+
 # ------------------------------------------------------------------------------
 #       Main
 # ------------------------------------------------------------------------------

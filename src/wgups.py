@@ -142,7 +142,6 @@ class Truck:
             mileage_traveled: float,
             current_time: time,
             is_available: bool,
-            return_to_hub_needed: bool,
             route: list[int],
             delivery_log: list[tuple[int, time]]
         ):
@@ -170,7 +169,6 @@ class Truck:
         self.mileage_traveled = mileage_traveled
         self.current_time = current_time
         self.is_available = is_available
-        self.return_to_hub_needed = return_to_hub_needed
         self.route = route
         self.delivery_log = delivery_log
     
