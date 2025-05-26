@@ -190,6 +190,50 @@ def assign_packages_to_trucks(packages: HashTable, trucks: list[Truck], address_
         truck_index = (truck_index + 1) % 3
 
 
+def nearest_neighbor_route(truck: Truck, distance_matrix: list[list], address_to_id_map: dict) -> list[int]:
+    """
+    Generate an optimized route using the nearest neighbor algorithm.
+
+    Args:
+        truck (Truck): The truck to generate a route for
+        distance_matrix (list[list]): 2D list of distances between addresses
+        address_to_id_map: Maps addresses to their matrix indices
+    
+    Returns:
+        List of address IDs representing the optimal route
+    """
+    # Unloaded truck guard
+    if not truck.packages_on_board:
+        return []
+    
+    # Get destination addresses for packages on truck
+    destinations = set()
+    for package in truck.packages_on_board:
+        dest_id = address_to_id_map[package.address]
+        destinations.add(dest_id)
+    
+    route = []
+    current_location = truck.current_location_id
+    unvisited = destinations.copy()  # All destinations start off unvisited
+
+    # Nearest neighbor algorithm
+    while unvisited:
+        nearest_distance = float('inf')
+        nearest_destination = None
+
+        for destination in unvisited:
+            distance = distance_matrix[current_location][destination]
+            if distance < nearest_distance:
+                nearest_distance = distance
+                nearest_destination = destination
+
+        route.append(nearest_destination)
+        unvisited.remove(nearest_destination)
+        current_location = nearest_destination
+
+    return route
+
+
 # ------------------------------------------------------------------------------
 #       Main
 # ------------------------------------------------------------------------------
