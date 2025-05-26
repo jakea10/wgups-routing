@@ -257,6 +257,32 @@ class Truck:
                 nearest_destination = dest_id
         
         return nearest_destination
+    
+    def get_packages_at_address(self, address_id: int, address_to_id_map: dict) -> list[Package]:
+        """
+        Gets all packages on the truck that need to be delivered to the given address.
+
+        Args:
+            address_id (int): The address ID to check for packages
+            address_to_id_map (dict): Maps addresses to their matrix indices
+
+        Returns:
+            list[Package]: List of packages that need to be delivered to the given address
+        """
+        packages_at_address = []
+        for package in self.packages_on_board:
+            if address_to_id_map[package.address] == address_id:
+                packages_at_address.append(package)
+        
+        return packages_at_address
+    
+    def __str__(self):
+        """
+        Returns a string representation of the Truck.
+        """
+        return (f"Truck {self.id}: Location {self.current_location_id}, "
+                f"Packages: {len(self.packages_on_board)}/{self.capacity}, "
+                f"Miles: {self.mileage_traveled:.1f}, Time: {self.current_time}")
 
 
 if __name__ == "__main__":
