@@ -4,56 +4,7 @@ from datetime import time
 from enum import StrEnum
 
 
-class Location():
-    def __init__(
-        self,
-        address: str,
-        city: str,
-        state: str,
-        zip_code: str,
-        name: str | None = None,
-    ):
-        self.address = address
-        self.city = city
-        self.state = state
-        self.zip_code = zip_code
-
-    
-    def __str__(self):
-        """
-        Returns a string representation of the delivery location.
-        """
-        return f"{self.address}, {self.city}, {self.state} {self.zip_code}"
-    
-
-    def __repr__(self):
-        """
-        Returns a developer-friendly string representation of the delivery location.
-        """
-        return (
-            f"Location(address='{self.address}', city='{self.city}', "
-            f"state='{self.state}', zip_code='{self.zip_code}')"
-        )
-    
-
-    def __eq__(self, other):
-        """Compares two Location instances for equality."""
-        if self is other:
-            return True
-        if not isinstance(other, Location):
-            return False
-        return (
-            self.address == other.address
-            and self.city == other.city
-            and self.state == other.state
-            and self.zip_code == other.zip_code
-
-        )
-    
-    def __hash__(self):
-        """Hashes the Location based on its attributes."""
-        return hash((self.address, self.city, self.state, self.zip_code))
-
+# Using a StrEnum for package status for a cleaner way to handle discrete states
 class PackageStatus(StrEnum):
     AT_HUB = "At the hub"
     EN_ROUTE = "En route"
@@ -62,7 +13,7 @@ class PackageStatus(StrEnum):
 
 class Package:
     """
-    Represents a package with an ID, delivery details, weight, and optional notes.
+    Represents a WGUPS package.
     """
     def __init__(
         self,
@@ -71,59 +22,57 @@ class Package:
         city: str,
         state: str,
         zip_code: str,
-        # delivery_location: Location,
         delivery_deadline: time,
-        kgs: int,
+        weight: float,
         notes: str | None = None,
-        status: PackageStatus = PackageStatus.AT_HUB
+        status: PackageStatus = PackageStatus.AT_HUB,
+        delivery_time: time | None = None
     ):
         """
         Initializes a new Package instance.
 
         Args:
             id (int): A unique identifier for the package.
-            delivery_location (Location): The location where the package needs to be delivered.
+            address (str): The address where the package needs to be delivered.
+            city (str): The city where the package needs to be delivered.
+            state (str): The state where the package needs to be delivered.
+            zip_code (str): The zip_code where the package needs to be delivered.
             delivery_deadline (time): The deadline for the package delivery.
-            kgs (int): The weight of the package in kilograms.
+            weight (float): The weight of the package in kilograms.
             notes (str | None): Optional additional notes for the package.
+            status (PackageStatus): The current delivery status of the package.
+            delivery_time(time | None): If applicable, the time the package was delivered.
         """
         self.id = id
-        # self.address = address
-        # self.city = city
-        # self.state = state
-        # self.zip_code = zip_code
-        self.delivery_location = Location(address, city, state, zip_code)
+        self.address = address
+        self.city = city
+        self.state = state
+        self.zip_code = zip_code
         self.delivery_deadline = delivery_deadline
-        self.kgs = kgs
+        self.weight = weight
         self.notes = notes
         self.status = status
+        self.delivery_time = delivery_time
 
 
     def __str__(self):
         """
         Returns a string representation of the Package.
         """
-        return (
-            f"Package ID: {self.id}\n"
-            f"Status: {self.status.value}\n"
-            f"Delivery Location: {self.delivery_location}\n"
-            f"Deadline: {self.delivery_deadline.strftime('%I:%M %p')}\n"
-            f"Weight: {self.kgs} kgs\n"
-            f"Notes: {self.notes}"
-        )
+        return (f"Package ID: {self.id}, Address: {self.address}, City: {self.city}, "
+                f"Zip: {self.zip_code}, Deadline: {self.delivery_deadline}, Weight: {self.weight}, "
+                f"Notes: {self.notes}, Status: {self.status}, Delivered: {self.delivery_time}")
 
 
     def __repr__(self):
         """
         Returns a developer-friendly string representation of the Package.
         """
-        return (
-            f"Package(id={self.id}, "
-            f"status={repr(self.status.value)}"
-            f"delivery_location={repr(self.delivery_location)}, "
-            f"delivery_deadline={repr(self.delivery_deadline)}, "
-            f"kgs={self.kgs}, notes='{self.notes}')"
-        )
+        cls = self.__class__.__name__
+        # return f"{cls}.from_dict({str(self)})"
+        return (f"{cls}({self.id}, '{self.address}', '{self.city}', "
+                f"'{self.zip_code}', {self.delivery_deadline}, '{self.weight}', "
+                f"'{self.notes}', '{self.status}', '{self.delivery_time}')")
 
 
     def __eq__(self, other):
@@ -134,9 +83,11 @@ class Package:
             return False
         return (
             self.id == other.id
-            and self.delivery_location == other.delivery_location
+            and self.address == other.address
+            and self.city == other.city
+            and self.zip_code == other.zip_code
             and self.delivery_deadline == other.delivery_deadline
-            and self.kgs == other.kgs
+            and self.weight == other.weight
             and self.notes == other.notes
         )
     
@@ -149,13 +100,12 @@ class Package:
         """
         return hash((
             self.id,
-            # self.address,
-            # self.city,
-            # self.state,
-            # self.zip_code,
-            self.delivery_location,
+            self.address,
+            self.city,
+            self.state,
+            self.zip_code,
             self.delivery_deadline,
-            self.kgs,
+            self.weight,
             self.notes
         ))
     
@@ -174,38 +124,31 @@ class Package:
             state=dictionary['state'],
             zip_code=dictionary['zip_code'],
             delivery_deadline=dictionary['delivery_deadline'],
-            kgs=dictionary['kgs'],
+            weight=dictionary['weight'],
             notes=dictionary['notes']
         )
 
 
-class Truck:
-    def __init__(
-            self,
-            current_location: Location,
-            current_time: time = time(8),
-            packages_on_board: list[Package] = [],
-            miles_traveled: float = 0,
-            capacity: int = 16, 
-            speed: float = 18,
-        ):
-        self.current_location = current_location
-        self.current_time = current_time
-        self.packages_on_board = packages_on_board
-        self.miles_traveled = miles_traveled
-        self.capacity = capacity
-        self.speed = speed
+# class Truck:
+#     def __init__(
+#             self,
+#             current_location: Location,
+#             current_time: time = time(8),
+#             packages_on_board: list[Package] = [],
+#             miles_traveled: float = 0,
+#             capacity: int = 16, 
+#             speed: float = 18,
+#         ):
+#         self.current_location = current_location
+#         self.current_time = current_time
+#         self.packages_on_board = packages_on_board
+#         self.miles_traveled = miles_traveled
+#         self.capacity = capacity
+#         self.speed = speed
 
 
 if __name__ == "__main__":
     import datetime
-
-    location = Location(
-    address="195 W Oakland Ave",
-    city="Salt Lake City",
-    state="UT",
-    zip_code="84115"
-    )
 
     my_package = Package(
         id=1,
@@ -214,8 +157,9 @@ if __name__ == "__main__":
         state="UT",
         zip_code="84115",
         delivery_deadline=datetime.datetime.strptime("10:30 AM", "%I:%M %p").time(),
-        kgs=21,
+        weight=21,
         notes="Handle with care"
     )
 
     print(my_package)
+    print(repr(my_package))

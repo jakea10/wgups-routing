@@ -18,7 +18,7 @@ def package() -> Package:
         state="UT",
         zip_code="84115",
         delivery_deadline=datetime.datetime.strptime("10:30 AM", "%I:%M %p").time(),
-        kgs=21,
+        weight=21,
         notes="Handle with care"
     )
 
@@ -28,7 +28,7 @@ def test_should_create_package(package: Package):
     assert package.id == 1
     assert isinstance(package.delivery_location, Location)
     assert isinstance(package.delivery_deadline, datetime.time)
-    assert package.kgs == 21
+    assert package.weight == 21
 
 
 def test_wgups_package_str(package: Package):
@@ -64,7 +64,7 @@ def test_wgups_package_eq(package: Package):
         state="UT",
         zip_code="84115",
         delivery_deadline=datetime.time(hour=10, minute=30),
-        kgs=21,
+        weight=21,
         notes="Handle with care",
     )
     assert package == package2
@@ -77,7 +77,7 @@ def test_wgups_package_eq(package: Package):
         state="UT",
         zip_code="84115",
         delivery_deadline=datetime.time(hour=10, minute=30),
-        kgs=5, # Different kgs
+        weight=5, # Different kgs
         notes="Handle with care",
     )
     assert package != package3
