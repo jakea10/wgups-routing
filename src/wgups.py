@@ -69,7 +69,6 @@ class Package:
         Returns a developer-friendly string representation of the Package.
         """
         cls = self.__class__.__name__
-        # return f"{cls}.from_dict({str(self)})"
         return (f"{cls}({self.id}, '{self.address}', '{self.city}', "
                 f"'{self.zip_code}', {self.delivery_deadline}, '{self.weight}', "
                 f"'{self.notes}', '{self.status}', '{self.delivery_time}')")
@@ -130,6 +129,9 @@ class Package:
 
 
 class Truck:
+    """
+    Represents a WGUPS delivery truck.
+    """
     def __init__(
             self,
             id: int,
@@ -144,6 +146,22 @@ class Truck:
             route: list[int],
             delivery_log: list[tuple[int, time]]
         ):
+        """
+        Initializes a new Truck instance.
+        
+        Args:
+            id (int): Unique identifier for the truck
+            capacity (int): Maximum number of packages the truck can carry
+            speed_mph (int): Average speed of the truck in miles per hour
+            current_location_id (int): Current address ID where the truck is located
+            packages_on_board (list[Package]): List of packages currently on the truck
+            mileage_traveled (float): Total miles traveled by the truck
+            current_time (time): Current time for the truck
+            is_available (bool): Whether the truck is available for new assignments
+            return_to_hub_needed (bool): Whether the truck needs to return to hub
+            route (list[int]): Planned route as list of address IDs
+            delivery_log (list[tuple[int, time]]): Log of delivered packages with times
+        """
         self.id = id
         self.capacity = capacity
         self.speed_mph = speed_mph
@@ -157,6 +175,15 @@ class Truck:
         self.delivery_log = delivery_log
     
     def add_package(self, package: Package) -> None:
+        """
+        Adds a package to the truck.
+
+        Args:
+            package (Package): The package to add to the truck
+        
+        Raises:
+            ValueError: If the truck is at capacity or package already exists
+        """
         if len(self.packages_on_board) >= self.capacity:
             raise ValueError(f"Truck {self.id} is at max package capacity")
         
@@ -166,12 +193,24 @@ class Truck:
         self.packages_on_board.append(package)
     
     def remove_package(self, package: Package) -> None:
+        """
+        Removes a package from the truck.
+        
+        Args:
+            package (Package): The package to remove from the truck
+            
+        Raises:
+            ValueError: If package is not found on the truck
+        """
         try:
             self.packages_on_board.remove(package)
         except ValueError:
             raise ValueError(f"Not found on Truck {self.id}: {repr(package)}")
 
     def list_packages(self) -> None:
+        """
+        Prints a list of all packages currently on the truck.
+        """
         if len(self.packages_on_board) > 0:
             print(f"Packages on board Truck {self.id}:")
             for package in self.packages_on_board:
@@ -180,10 +219,44 @@ class Truck:
             print(f"Packages on board Truck {self.id}: None")
 
     def deliver_package(self, package: Package, delivery_time: time) -> None:
+        """
+        Delivers a package and updates its status.
+        
+        Args:
+            package (Package): The package to deliver
+            delivery_time (time): The time the package was delivered
+        """
         package.status = PackageStatus.DELIVERED
         package.delivery_time = delivery_time
         self.delivery_log.append((package.id, delivery_time))
         self.packages_on_board.remove(package)
+    
+    def get_next_destination(self, distance_matrix: list[list], address_to_id_map: dict) -> int | None:
+        """
+        Gets the next destination using nearest neighbor logic.
+        
+        Args:
+            distance_matrix (list[list]): 2D matrix of distances between addresses
+            address_to_id_map (dict): Maps addresses to their matrix indices
+            
+        Returns:
+            int | None: The address ID of the nearest undelivered package, or None if no packages
+        """
+        if not self.packages_on_board:
+            return None
+        
+        nearest_distance = float('inf')
+        nearest_destination = None
+
+        for package in self.packages_on_board:
+            dest_id = address_to_id_map[package.address]
+            distance = distance_matrix[self.current_location_id][dest_id]
+
+            if distance < nearest_distance:
+                nearest_distance = distance
+                nearest_destination = dest_id
+        
+        return nearest_destination
 
 
 if __name__ == "__main__":
