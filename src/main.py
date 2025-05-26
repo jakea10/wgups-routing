@@ -5,7 +5,12 @@ import csv
 import datetime
 
 
-EOD_TIME = datetime.time(17, 0)  # 5:00 PM
+EOD_TIME: datetime.time = datetime.time(17, 0)  # 5:00 PM
+HUB_ADDRESS_ID: int = 0
+TRUCK_CAPACITY: int = 16
+TRUCK_SPEED_MPH: int = 18
+START_TIME: datetime.time = datetime.time(8, 0)
+ADDRESS_CHANGE_TIME: datetime.time = datetime.time(10, 20)
 
 
 def load_package_data(package_file: str, hash_table: HashTable) -> None:
