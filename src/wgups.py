@@ -1,17 +1,17 @@
 # wgups.py
 
 from datetime import time
+from enum import StrEnum
 
 
 class Location():
     def __init__(
         self,
-        name: str,
         address: str,
         city: str,
         state: str,
         zip_code: str,
-                 
+        name: str | None = None,
     ):
         self.address = address
         self.city = city
@@ -54,6 +54,11 @@ class Location():
         """Hashes the Location based on its attributes."""
         return hash((self.address, self.city, self.state, self.zip_code))
 
+class PackageStatus(StrEnum):
+    AT_HUB = "At the hub"
+    EN_ROUTE = "En route"
+    DELIVERED = "Delivered"
+
 
 class Package:
     """
@@ -70,6 +75,7 @@ class Package:
         delivery_deadline: time,
         kgs: int,
         notes: str | None = None,
+        status: PackageStatus = PackageStatus.AT_HUB
     ):
         """
         Initializes a new Package instance.
@@ -86,12 +92,11 @@ class Package:
         # self.city = city
         # self.state = state
         # self.zip_code = zip_code
-        self.delivery_location = Location(
-            address, city, state, zip_code
-        )
+        self.delivery_location = Location(address, city, state, zip_code)
         self.delivery_deadline = delivery_deadline
         self.kgs = kgs
         self.notes = notes
+        self.status = status
 
 
     def __str__(self):
@@ -100,6 +105,7 @@ class Package:
         """
         return (
             f"Package ID: {self.id}\n"
+            f"Status: {self.status.value}\n"
             f"Delivery Location: {self.delivery_location}\n"
             f"Deadline: {self.delivery_deadline.strftime('%I:%M %p')}\n"
             f"Weight: {self.kgs} kgs\n"
@@ -113,6 +119,7 @@ class Package:
         """
         return (
             f"Package(id={self.id}, "
+            f"status={repr(self.status.value)}"
             f"delivery_location={repr(self.delivery_location)}, "
             f"delivery_deadline={repr(self.delivery_deadline)}, "
             f"kgs={self.kgs}, notes='{self.notes}')"
@@ -189,6 +196,7 @@ class Truck:
         self.capacity = capacity
         self.speed = speed
 
+
 if __name__ == "__main__":
     import datetime
 
@@ -201,10 +209,13 @@ if __name__ == "__main__":
 
     my_package = Package(
         id=1,
-        delivery_location=location,
+        address="195 W Oakland Ave",
+        city="Salt Lake City",
+        state="UT",
+        zip_code="84115",
         delivery_deadline=datetime.datetime.strptime("10:30 AM", "%I:%M %p").time(),
         kgs=21,
         notes="Handle with care"
     )
 
-    print(hash(my_package) % 8)
+    print(my_package)
