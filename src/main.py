@@ -449,21 +449,18 @@ def main():
             print(f"  {Colors.BOLD}5.{Colors.END} Exit")
             
             choice = input("\nEnter choice (1-5): ").strip()
-
             if choice == '1':
                 package_id = int(input("Enter package ID: "))
                 time_str = input("Enter time (HH:MM AM/PM): ")
                 lookup_time = datetime.datetime.strptime(time_str, "%I:%M %p").time()
                 result = lookup_package_at_time(package_id, lookup_time, packages)
                 print(result)
-
             elif choice == '2':
                 time_str = input("Enter time (HH:MM AM/PM): ")
                 lookup_time = datetime.datetime.strptime(time_str, "%I:%M %p").time()
                 for package_id in sorted(packages.keys):
                     result = lookup_package_at_time(package_id, lookup_time, packages)
                     print(result)
-            
             elif choice == '3':
                 package_id = int(input("Enter package ID: "))
                 if package_id in packages:
@@ -471,17 +468,14 @@ def main():
                     print(result)
                 else:
                     print(f"Package {package_id} not found")
-
             elif choice == '4':
                 for truck in trucks:
                     package_ids = sorted([delivery[0] for delivery in truck.delivery_log])
                     print(f"Truck {truck.id} delivery log:")
                     for pkg_id in package_ids:
                         print(f"  - Package {pkg_id}")
-
             elif choice == '5':
                 break
-
         except ValueError:
             print("Invalid input. Please try again.")
         except KeyboardInterrupt:
