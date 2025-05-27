@@ -13,6 +13,20 @@ START_TIME: datetime.time = datetime.time(8, 0)
 ADDRESS_CHANGE_TIME: datetime.time = datetime.time(10, 20)
 
 
+# ANSI color codes for printing colored text
+class Colors:
+    RED = '\033[91m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    MAGENTA = '\033[95m'
+    CYAN = '\033[96m'
+    WHITE = '\033[97m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'  # Reset to default
+
+
 def load_package_data(package_file: str, hash_table: HashTable) -> None:
     """
     Parses package data from a CSV file into the provided hash table.
@@ -307,25 +321,30 @@ def deliver_packages(
 
 def print_package_status(packages: HashTable, current_time: datetime.time | None = None) -> None:
     """Print status of all packages, optionally filtered by time."""
-    print("\n--- Package Status Report ---")
+    print("\n" + f"{Colors.BOLD}={Colors.END}" * 80)
+    print(f"\t{Colors.BOLD}PACKAGE STATUS REPORT{Colors.END}")
+    print(f"{Colors.BOLD}={Colors.END}" * 80)
     if current_time:
         print(f"Status as of: {current_time.strftime('%I:%M %p')}")
-    print("-" * 80)
 
     for package_id in sorted(packages.keys):
         package = packages[package_id]
         deadline_str = package.delivery_deadline.strftime('%I:%M %p') if package.delivery_deadline != EOD_TIME else 'EOD'
         delivery_str = package.delivery_time.strftime('%I:%M %p') if package.delivery_time else 'Not delivered'
-
+        if 'Not delivered' in delivery_str:
+            deadline_color = Colors.YELLOW
+        else:
+            deadline_color = Colors.GREEN if package.delivery_time < package.delivery_deadline else Colors.RED
         print(f"Package {package.id:2d}: {package.address:<40} | "
               f"Deadline: {deadline_str:8} | Status: {package.status:<12} | "
-              f"Delivered: {delivery_str}")
+              f"Delivered: {deadline_color}{delivery_str}{Colors.END}")
 
 
 def print_truck_summary(trucks: list[Truck]) -> None:
     """Print summary of all trucks."""
-    print("\n--- Truck Summary ---")
-    print("-" * 80)
+    print("\n" + f"{Colors.BOLD}={Colors.END}" * 80)
+    print(f"\t{Colors.BOLD}TRUCK SUMMARY{Colors.END}")
+    print(f"{Colors.BOLD}={Colors.END}" * 80)
     total_mileage = 0
     
     for truck in trucks:
@@ -334,7 +353,8 @@ def print_truck_summary(trucks: list[Truck]) -> None:
               f"Final time: {truck.current_time.strftime('%I:%M %p')}")
         total_mileage += truck.mileage_traveled
     
-    print(f"\nTotal mileage for all trucks: {total_mileage:.1f} miles")
+    color = Colors.GREEN if total_mileage < 140 else Colors.RED
+    print(f"\nTotal mileage for all trucks: {color}{total_mileage:.1f} miles{Colors.END}")
 
 
 def lookup_package_at_time(package_id: int, lookup_time: datetime.time, packages: HashTable) -> str:
@@ -414,17 +434,17 @@ def main():
     print_truck_summary(trucks)
 
     # Interactive lookup interface
-    print("\n" + "=" * 80)
-    print("INTERACTIVE PACKAGE LOOKUP")
-    print("=" * 80)
+    print("\n" + f"{Colors.BOLD}={Colors.END}" * 80)
+    print(f"{Colors.BOLD}\tINTERACTIVE PACKAGE LOOKUP{Colors.END}")
+    print(f"{Colors.BOLD}={Colors.END}" * 80)
 
     while True:
         try:
-            print("\nOptions:")
-            print("1. Look up package status at specific time")
-            print("2. View all packages at specific time") 
-            print("3. Look up specific package current status")
-            print("4. Exit")
+            print(f"\n{Colors.BOLD}Options:{Colors.END}")
+            print(f"  {Colors.BOLD}1.{Colors.END} Look up package status at specific time")
+            print(f"  {Colors.BOLD}2.{Colors.END} View all packages at specific time") 
+            print(f"  {Colors.BOLD}3.{Colors.END} Look up specific package current status")
+            print(f"  {Colors.BOLD}4.{Colors.END} Exit")
             
             choice = input("\nEnter choice (1-4): ").strip()
 
