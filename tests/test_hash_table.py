@@ -1,4 +1,4 @@
-from src.hash_table import HashTable, Pair, DELETED
+from src.hash_table import HashTable, DELETED
 import pytest
 from pytest_unordered import unordered
 from unittest.mock import patch
@@ -307,9 +307,9 @@ def collision_ht() -> HashTable:
 
 def test_should_handle_collisions_on_create(collision_ht: HashTable):
     # linear probe
-    assert collision_ht._slots[24] == Pair('easy', 'Requires little effort')
-    assert collision_ht._slots[25] == Pair('medium', 'Requires some skill and effort')
-    assert collision_ht._slots[26] == Pair('difficult', 'Needs much skill')
+    assert collision_ht._slots[24] == ('easy', 'Requires little effort')
+    assert collision_ht._slots[25] == ('medium', 'Requires some skill and effort')
+    assert collision_ht._slots[26] == ('difficult', 'Needs much skill')
 
 
 def test_should_handle_collisions_on_read(collision_ht: HashTable):

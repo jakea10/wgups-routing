@@ -1,15 +1,15 @@
 # hash_table.py
 
-from typing import NamedTuple, Any
+# from typing import NamedTuple, Any
 
 
 DELETED = object()  # Sentinel value used to mark a slot as deleted for linear probing (we're using lazy deletion)
 
 
-class Pair(NamedTuple):
-    """Represents a key-value pair stored in the hash table."""
-    key: Any
-    value: Any
+# class Pair(NamedTuple):
+#     """Represents a key-value pair stored in the hash table."""
+#     key: Any
+#     value: Any
 
 
 class HashTable:
@@ -69,8 +69,8 @@ class HashTable:
         for index, pair in self._probe(key):
             if pair is DELETED:
                 continue  # Collsion has occurred before, continue probing.
-            if pair is None or pair.key == key:  # Found an empty slot or the key already exists.
-                self._slots[index] = Pair(key, value)
+            if pair is None or pair[0] == key:  # Found an empty slot or the key already exists.
+                self._slots[index] = (key, value )#Pair(key, value)
                 break
 
 
@@ -92,8 +92,8 @@ class HashTable:
                 raise KeyError(key)
             if pair is DELETED:
                 continue  # Skip over deleted slots and continue probing.
-            if pair.key == key:  # Found the key.
-                return pair.value
+            if pair[0] == key:  # Found the key.
+                return pair[1]
         raise KeyError(key)  # Should not be reached if `_probe` covers all slots and key isn't found.
     
 
@@ -112,7 +112,7 @@ class HashTable:
                 raise KeyError(key)
             if pair is DELETED:
                 continue  # Skip over deleted slots and continue probing.
-            if pair.key == key:  # Found the key
+            if pair[0] == key:  # Found the key
                 self._slots[index] = DELETED  # Mark the slot as deleted.
                 return
         raise KeyError(key)  # Key not found after probing all relevant slots.
@@ -267,7 +267,7 @@ class HashTable:
         """
         Returns a list of all values currently in the hash table.
         """
-        return [pair.value for pair in self.pairs]
+        return [pair[1] for pair in self.pairs]
     
 
     @property
@@ -275,7 +275,7 @@ class HashTable:
         """
         Returns a set of all keys currently in the hash table.
         """
-        return {pair.key for pair in self.pairs}
+        return {pair[0] for pair in self.pairs}
     
 
     @property
