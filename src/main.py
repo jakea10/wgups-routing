@@ -297,6 +297,65 @@ def deliver_packages(
     truck.current_location_id = HUB_ADDRESS_ID
 
 
+def print_package_status(packages: HashTable, current_time: datetime.time | None = None) -> None:
+    """Print status of all packages, optionally filtered by time."""
+    print("\n--- Package Status Report ---")
+    if current_time:
+        print(f"Status as of: {current_time.strftime('%I:%M %p')}")
+    print("-" * 80)
+
+    for package_id in sorted(packages.keys):
+        package = packages[package_id]
+        deadline_str = package.delivery_deadline.strftime('%I:%M %p') if package.delivery_deadline != EOD_TIME else 'EOD'
+        delivery_str = package.delivery_time.strftime('%I:%M %p') if package.delivery_time else 'Not delivered'
+
+        print(f"Package {package.id:2d}: {package.address:<35} | "
+              f"Deadline: {deadline_str:8} | Status: {package.status:<12} | "
+              f"Delivered: {delivery_str}")
+
+
+def print_truck_summary(trucks: list[Truck]) -> None:
+    """Print summary of all trucks."""
+    print("\n--- Truck Summary ---")
+    print("-" * 80)
+    total_mileage = 0
+    
+    for truck in trucks:
+        print(f"Truck {truck.id}: {truck.mileage_traveled:.1f} miles | "
+              f"Delivered: {len(truck.delivery_log)} packages | "
+              f"Final time: {truck.current_time.strftime('%I:%M %p')}")
+        total_mileage += truck.mileage_traveled
+    
+    print(f"\nTotal mileage for all trucks: {total_mileage:.1f} miles")
+
+
+def lookup_package_at_time(package_id: int, lookup_time: datetime.time, packages: HashTable) -> str:
+    """
+    Look up a package's status at a specific time.
+    
+    Args:
+        package_id: ID of the package to look up
+        lookup_time: Time to check the package status
+        packages: Hash table containing all packages
+        
+    Returns:
+        String describing the package status at the given time
+    """
+    if package_id not in packages:
+        return f"Package {package_id} not found"
+    
+    package = packages[package_id]
+
+    # If package hasn't been delivered yet or delivery time is after lookup time
+    if not package.delivery_time or package.delivery_time > lookup_time:
+        if package.status == PackageStatus.EN_ROUTE:
+            return f"Package {package_id} is en route"
+        else:
+            return f"Package {package_id} is at the hub"
+    else:
+        return f"Package {package_id} delivered at {package.delivery_time.strftime('%I:%M %p')}"
+
+
 # ------------------------------------------------------------------------------
 #       Main
 # ------------------------------------------------------------------------------
