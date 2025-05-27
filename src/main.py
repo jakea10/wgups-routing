@@ -136,6 +136,7 @@ def assign_packages_to_trucks(packages: HashTable, trucks: list[Truck], address_
     early_deadline = []  # Packages with early deadlines
     delayed_packages = []  # Packages delayed until 9:05 AM
     grouped_packages = []  # Packages that must be delivered together
+    wrong_address = []  # Packages that have the wrong address and must wait to be corrected
     regular_packages = []  # All other packages
 
     # Separate packages per constraints
@@ -148,6 +149,8 @@ def assign_packages_to_trucks(packages: HashTable, trucks: list[Truck], address_
             grouped_packages.append(package)
         elif package.delivery_deadline < datetime.time(10, 30):
             early_deadline.append(package)
+        elif package.notes and "Wrong address" in package.notes:
+            wrong_address.append(package)
         else:
             regular_packages.append(package)
     
@@ -170,6 +173,12 @@ def assign_packages_to_trucks(packages: HashTable, trucks: list[Truck], address_
 
     # Assign delayed packages to truck 3 (departs after 9:05 AM)
     for package in delayed_packages:
+        if len(trucks[2].packages_on_board) < TRUCK_CAPACITY:
+            trucks[2].add_package(package)
+            packages[package.id].status = PackageStatus.EN_ROUTE
+
+    # Assign wrong address packages to truck 3
+    for package in wrong_address:
         if len(trucks[2].packages_on_board) < TRUCK_CAPACITY:
             trucks[2].add_package(package)
             packages[package.id].status = PackageStatus.EN_ROUTE
@@ -378,22 +387,27 @@ def main():
     # Create trucks
     trucks = create_trucks()
 
-    # Handle special case: Package 9 has wrong address until 10:20 AM
-    packages[9].address = "410 S State St"  # Correct address
-
-    # Truck 1 and 2 depart at 8:00 AM
-    # Truck 3 departs at 9:05 AM after delayed packages arrive
-    trucks[2].current_time = datetime.time(9, 5)
-
     # Assign packages
     assign_packages_to_trucks(packages, trucks, address_to_id_map)
     for truck in trucks:
         print(f"Truck {truck.id} loaded with {len(truck.packages_on_board)} / {TRUCK_CAPACITY} packages")
 
-    # Simulate deliveries for all trucks
-    for truck in trucks:
-        print(f"\nDelivering packages for Truck {truck.id}...")
-        deliver_packages(truck, distance_matrix, address_to_id_map, packages)
+    # Simulate deliveries truck 1
+    print(f"\nDelivering packages for Truck {trucks[0].id} (start time: {trucks[0].current_time})...")
+    deliver_packages(trucks[0], distance_matrix, address_to_id_map, packages)
+
+    # Simulate deliveries truck 2
+    print(f"\nDelivering packages for Truck {trucks[1].id} (start time: {trucks[1].current_time})...")
+    deliver_packages(trucks[1], distance_matrix, address_to_id_map, packages)
+
+    # Handle special case: Package 9 has wrong address until 10:20 AM
+    packages[9].address = "410 S State St"  # Correct address
+
+    # Truck 1 and 2 depart at 8:00 AM
+    # Truck 3 departs at after truck 1 or 2 returns (only two drivers)
+    trucks[2].current_time = min(trucks[0].current_time, trucks[1].current_time)
+    print(f"\nDelivering packages for Truck {trucks[2].id} (start time: {trucks[2].current_time})...")
+    deliver_packages(trucks[2], distance_matrix, address_to_id_map, packages)
 
     # Print final results
     print_package_status(packages)
