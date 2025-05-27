@@ -399,7 +399,7 @@ def main():
     print_package_status(packages)
     print_truck_summary(trucks)
 
-    # TODO: Interactive lookup interface
+    # Interactive lookup interface
     print("\n" + "=" * 80)
     print("INTERACTIVE PACKAGE LOOKUP")
     print("=" * 80)
