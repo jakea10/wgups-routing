@@ -1,15 +1,6 @@
 # hash_table.py
 
-# from typing import NamedTuple, Any
-
-
 DELETED = object()  # Sentinel value used to mark a slot as deleted for linear probing (we're using lazy deletion)
-
-
-# class Pair(NamedTuple):
-#     """Represents a key-value pair stored in the hash table."""
-#     key: Any
-#     value: Any
 
 
 class HashTable:
