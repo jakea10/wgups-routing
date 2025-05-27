@@ -119,7 +119,6 @@ def create_trucks() -> list[Truck]:
             mileage_traveled=0.0,
             current_time=START_TIME,
             is_available=True,
-            return_to_hub_needed=False,
             route=[],
             delivery_log=[]
         )
@@ -309,7 +308,7 @@ def print_package_status(packages: HashTable, current_time: datetime.time | None
         deadline_str = package.delivery_deadline.strftime('%I:%M %p') if package.delivery_deadline != EOD_TIME else 'EOD'
         delivery_str = package.delivery_time.strftime('%I:%M %p') if package.delivery_time else 'Not delivered'
 
-        print(f"Package {package.id:2d}: {package.address:<35} | "
+        print(f"Package {package.id:2d}: {package.address:<40} | "
               f"Deadline: {deadline_str:8} | Status: {package.status:<12} | "
               f"Delivered: {delivery_str}")
 
@@ -380,6 +379,7 @@ def main():
     trucks = create_trucks()
 
     # TODO: Handle special case: Package 9 has wrong address until 10:20 AM
+    packages[9].address = "410 S State St"  # Correct address
 
     # Assign packages
     assign_packages_to_trucks(packages, trucks, address_to_id_map)
@@ -390,9 +390,14 @@ def main():
     # Truck 3 departs at 9:05 AM after delayed packages arrive
     trucks[2].current_time = datetime.time(9, 5)
 
-    # TODO: Simulate deliveries for all trucks
+    # Simulate deliveries for all trucks
+    for truck in trucks:
+        print(f"\nDelivering packages for Truck {truck.id}...")
+        deliver_packages(truck, distance_matrix, address_to_id_map, packages)
 
     # TODO: Print final results
+    print_package_status(packages)
+    print_truck_summary(trucks)
 
     # TODO: Interactive lookup interface
 
