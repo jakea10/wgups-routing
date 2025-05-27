@@ -154,25 +154,25 @@ def assign_packages_to_trucks(packages: HashTable, trucks: list[Truck], address_
     # Assign truck 2 only packages
     for package in truck2_only:
         trucks[1].add_package(package)
-        package.status = PackageStatus.EN_ROUTE
+        packages[package.id].status = PackageStatus.EN_ROUTE
     
     # Assign early deadline packages to truck 1 (departs first)
     for package in early_deadline:
         if len(trucks[0].packages_on_board) < TRUCK_CAPACITY:
             trucks[0].add_package(package)
-            package.status = PackageStatus.EN_ROUTE
+            packages[package.id].status = PackageStatus.EN_ROUTE
 
     # Handle grouped packages (13, 14, 15, 16, 19, and 20)
     for package in grouped_packages:
         if len(trucks[0].packages_on_board) < TRUCK_CAPACITY:
             trucks[0].add_package(package)
-            package.status = PackageStatus.EN_ROUTE
+            packages[package.id].status = PackageStatus.EN_ROUTE
 
     # Assign delayed packages to truck 3 (departs after 9:05 AM)
     for package in delayed_packages:
         if len(trucks[2].packages_on_board) < TRUCK_CAPACITY:
             trucks[2].add_package(package)
-            package.status = PackageStatus.EN_ROUTE
+            packages[package.id].status = PackageStatus.EN_ROUTE
     
     # Distribute remaining packages
     truck_index = 0
@@ -185,7 +185,7 @@ def assign_packages_to_trucks(packages: HashTable, trucks: list[Truck], address_
             truck_index = (truck_index + 1) % 3  # there are only 3 trucks, so wrap around if necessary
         
         trucks[truck_index].add_package(package)
-        package.status = PackageStatus.EN_ROUTE
+        packages[package.id].status = PackageStatus.EN_ROUTE
         truck_index = (truck_index + 1) % 3
 
 
@@ -347,7 +347,7 @@ def lookup_package_at_time(package_id: int, lookup_time: datetime.time, packages
 
     # If package hasn't been delivered yet or delivery time is after lookup time
     if not package.delivery_time or package.delivery_time > lookup_time:
-        if package.status == PackageStatus.EN_ROUTE:
+        if package.loaded_time < lookup_time:
             return f"Package {package_id} is en route"
         else:
             return f"Package {package_id} is at the hub"
@@ -378,28 +378,54 @@ def main():
     # Create trucks
     trucks = create_trucks()
 
-    # TODO: Handle special case: Package 9 has wrong address until 10:20 AM
+    # Handle special case: Package 9 has wrong address until 10:20 AM
     packages[9].address = "410 S State St"  # Correct address
+
+    # Truck 1 and 2 depart at 8:00 AM
+    # Truck 3 departs at 9:05 AM after delayed packages arrive
+    trucks[2].current_time = datetime.time(9, 5)
 
     # Assign packages
     assign_packages_to_trucks(packages, trucks, address_to_id_map)
     for truck in trucks:
         print(f"Truck {truck.id} loaded with {len(truck.packages_on_board)} / {TRUCK_CAPACITY} packages")
 
-    # Truck 1 and 2 depart at 8:00 AM
-    # Truck 3 departs at 9:05 AM after delayed packages arrive
-    trucks[2].current_time = datetime.time(9, 5)
-
     # Simulate deliveries for all trucks
     for truck in trucks:
         print(f"\nDelivering packages for Truck {truck.id}...")
         deliver_packages(truck, distance_matrix, address_to_id_map, packages)
 
-    # TODO: Print final results
+    # Print final results
     print_package_status(packages)
     print_truck_summary(trucks)
 
     # TODO: Interactive lookup interface
+    print("\n" + "=" * 80)
+    print("INTERACTIVE PACKAGE LOOKUP")
+    print("=" * 80)
+
+    while True:
+        try:
+            print("\nOptions:")
+            print("1. Look up package status at specific time")
+            print("2. View all packages at specific time") 
+            print("3. Look up specific package current status")
+            print("4. Exit")
+            
+            choice = input("\nEnter choice (1-4): ").strip()
+
+            if choice == '1':
+                package_id = int(input("Enter package ID: "))
+                time_str = input("Enter time (HH:MM AM/PM): ")
+                lookup_time = datetime.datetime.strptime(time_str, "%I:%M %p").time()
+                result = lookup_package_at_time(package_id, lookup_time, packages)
+                print(result)
+
+        except ValueError:
+            print("Invalid input. Please try again.")
+        except KeyboardInterrupt:
+            print("\nExiting...")
+            break
 
 
 if __name__ == "__main__":

@@ -26,6 +26,7 @@ class Package:
         weight: float,
         notes: str | None = None,
         status: PackageStatus = PackageStatus.AT_HUB,
+        loaded_time: time | None = None,
         delivery_time: time | None = None
     ):
         """
@@ -41,7 +42,8 @@ class Package:
             weight (float): The weight of the package in kilograms.
             notes (str | None): Optional additional notes for the package.
             status (PackageStatus): The current delivery status of the package.
-            delivery_time(time | None): If applicable, the time the package was delivered.
+            loaded_time(time | None): The time the package was loaded onto a truck.
+            delivery_time(time | None): The time the package was delivered.
         """
         self.id = id
         self.address = address
@@ -52,6 +54,7 @@ class Package:
         self.weight = weight
         self.notes = notes
         self.status = status
+        self.loaded_time = loaded_time
         self.delivery_time = delivery_time
 
 
@@ -189,6 +192,7 @@ class Truck:
             raise ValueError(f"Truck {self.id} already contains {repr(package)}")
         
         self.packages_on_board.append(package)
+        package.loaded_time = self.current_time
     
     def remove_package(self, package: Package) -> None:
         """
