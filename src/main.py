@@ -161,7 +161,7 @@ def assign_packages_to_trucks(packages: HashTable, trucks: list[Truck], address_
             delayed_packages.append(package)
         elif package.id in [13, 14, 15, 16, 19, 20]:
             grouped_packages.append(package)
-        elif package.delivery_deadline < datetime.time(10, 30):
+        elif package.delivery_deadline < EOD_TIME:
             early_deadline.append(package)
         elif package.notes and "Wrong address" in package.notes:
             wrong_address.append(package)
@@ -170,6 +170,11 @@ def assign_packages_to_trucks(packages: HashTable, trucks: list[Truck], address_
     
     # Assign truck 2 only packages
     for package in truck2_only:
+        trucks[1].add_package(package)
+        packages[package.id].status = PackageStatus.EN_ROUTE
+
+    # Assign delayed packages to truck 2 (departs after 9:05 AM)
+    for package in delayed_packages:
         trucks[1].add_package(package)
         packages[package.id].status = PackageStatus.EN_ROUTE
     
@@ -185,12 +190,6 @@ def assign_packages_to_trucks(packages: HashTable, trucks: list[Truck], address_
             trucks[0].add_package(package)
             packages[package.id].status = PackageStatus.EN_ROUTE
 
-    # Assign delayed packages to truck 3 (departs after 9:05 AM)
-    for package in delayed_packages:
-        if len(trucks[2].packages_on_board) < TRUCK_CAPACITY:
-            trucks[2].add_package(package)
-            packages[package.id].status = PackageStatus.EN_ROUTE
-
     # Assign wrong address packages to truck 3
     for package in wrong_address:
         if len(trucks[2].packages_on_board) < TRUCK_CAPACITY:
@@ -198,7 +197,7 @@ def assign_packages_to_trucks(packages: HashTable, trucks: list[Truck], address_
             packages[package.id].status = PackageStatus.EN_ROUTE
     
     # Distribute remaining packages
-    truck_index = 0
+    truck_index = 2
     for package in regular_packages:
         if package.status == PackageStatus.EN_ROUTE:
             continue
@@ -413,20 +412,22 @@ def main():
         print(f"Truck {truck.id} loaded with {len(truck.packages_on_board)} / {TRUCK_CAPACITY} packages")
 
     # Simulate deliveries truck 1
-    print(f"\nDelivering packages for Truck {trucks[0].id} (start time: {trucks[0].current_time})...")
+    print(f"Delivering packages for Truck {trucks[0].id} (start time: {trucks[0].current_time})...")
     deliver_packages(trucks[0], distance_matrix, address_to_id_map, packages)
 
     # Simulate deliveries truck 2
-    print(f"\nDelivering packages for Truck {trucks[1].id} (start time: {trucks[1].current_time})...")
+    trucks[1].current_time = datetime.time(9, 5)
+    print(f"Delivering packages for Truck {trucks[1].id} (start time: {trucks[1].current_time})...")
     deliver_packages(trucks[1], distance_matrix, address_to_id_map, packages)
 
     # Handle special case: Package 9 has wrong address until 10:20 AM
     packages[9].address = "410 S State St"  # Correct address
 
-    # Truck 1 and 2 depart at 8:00 AM
-    # Truck 3 departs at after truck 1 or 2 returns (only two drivers)
+    # Truck 1 departs at 8:00 AM
+    # Truck 2 departs at 9:05 AM
+    # Truck 3 departs after truck 1 or 2 returns (only two drivers)
     trucks[2].current_time = min(trucks[0].current_time, trucks[1].current_time)
-    print(f"\nDelivering packages for Truck {trucks[2].id} (start time: {trucks[2].current_time})...")
+    print(f"Delivering packages for Truck {trucks[2].id} (start time: {trucks[2].current_time})...")
     deliver_packages(trucks[2], distance_matrix, address_to_id_map, packages)
 
     # Print final results
@@ -444,9 +445,10 @@ def main():
             print(f"  {Colors.BOLD}1.{Colors.END} Look up package status at specific time")
             print(f"  {Colors.BOLD}2.{Colors.END} View all packages at specific time") 
             print(f"  {Colors.BOLD}3.{Colors.END} Look up specific package current status")
-            print(f"  {Colors.BOLD}4.{Colors.END} Exit")
+            print(f"  {Colors.BOLD}4.{Colors.END} View truck delivery logs")
+            print(f"  {Colors.BOLD}5.{Colors.END} Exit")
             
-            choice = input("\nEnter choice (1-4): ").strip()
+            choice = input("\nEnter choice (1-5): ").strip()
 
             if choice == '1':
                 package_id = int(input("Enter package ID: "))
@@ -471,6 +473,13 @@ def main():
                     print(f"Package {package_id} not found")
 
             elif choice == '4':
+                for truck in trucks:
+                    package_ids = sorted([delivery[0] for delivery in truck.delivery_log])
+                    print(f"Truck {truck.id} delivery log:")
+                    for pkg_id in package_ids:
+                        print(f"  - Package {pkg_id}")
+
+            elif choice == '5':
                 break
 
         except ValueError:
