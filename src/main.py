@@ -421,6 +421,24 @@ def main():
                 result = lookup_package_at_time(package_id, lookup_time, packages)
                 print(result)
 
+            elif choice == '2':
+                time_str = input("Enter time (HH:MM AM/PM): ")
+                lookup_time = datetime.datetime.strptime(time_str, "%I:%M %p").time()
+                for package_id in sorted(packages.keys):
+                    result = lookup_package_at_time(package_id, lookup_time, packages)
+                    print(result)
+            
+            elif choice == '3':
+                package_id = int(input("Enter package ID: "))
+                if package_id in packages:
+                    result = lookup_package_at_time(package_id, EOD_TIME, packages)
+                    print(result)
+                else:
+                    print(f"Package {package_id} not found")
+
+            elif choice == '4':
+                break
+
         except ValueError:
             print("Invalid input. Please try again.")
         except KeyboardInterrupt:
