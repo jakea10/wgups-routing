@@ -26,6 +26,7 @@ class Package:
         weight: float,
         notes: str | None = None,
         status: PackageStatus = PackageStatus.AT_HUB,
+        truck_id: int | None = None,
         loaded_time: time | None = None,
         delivery_time: time | None = None
     ):
@@ -42,6 +43,7 @@ class Package:
             weight (float): The weight of the package in kilograms.
             notes (str | None): Optional additional notes for the package.
             status (PackageStatus): The current delivery status of the package.
+            truck_id (int | None): The ID of the truck the package was loaded on.
             loaded_time(time | None): The time the package was loaded onto a truck.
             delivery_time(time | None): The time the package was delivered.
         """
