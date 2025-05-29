@@ -324,14 +324,15 @@ def deliver_packages(
     truck.current_location_id = HUB_ADDRESS_ID
 
 
-def print_package_status(packages: HashTable, current_time: datetime.time | None = None) -> None:
-    """Print status of all packages, optionally filtered by time."""
+def print_package_status(packages: HashTable) -> None:
+    """Print status of all packages."""
     print("\n" + f"{Colors.BOLD}={Colors.END}" * 80)
     print(f"\t{Colors.BOLD}PACKAGE STATUS REPORT{Colors.END}")
     print(f"{Colors.BOLD}={Colors.END}" * 80)
-    if current_time:
-        print(f"Status as of: {current_time.strftime('%I:%M %p')}")
 
+    # Print header row
+    print(" ID |" + "Address".center(40) + "|" + "Deadline".center(15) + "|" + "Status".center(15) + "|" + "Truck ID".center(10) + "|" + "Delivery Time")
+    print("-" * 102)
     for package_id in sorted(packages.keys):
         package = packages[package_id]
         deadline_str = package.delivery_deadline.strftime('%I:%M %p') if package.delivery_deadline != EOD_TIME else 'EOD'
@@ -340,9 +341,7 @@ def print_package_status(packages: HashTable, current_time: datetime.time | None
             deadline_color = Colors.YELLOW
         else:
             deadline_color = Colors.GREEN if package.delivery_time < package.delivery_deadline else Colors.RED
-        print(f"Package {package.id:2d}: {package.address:<40} | "
-              f"Deadline: {deadline_str:8} | Status: {package.status:<12} | "
-              f"Delivered: {deadline_color}{delivery_str}{Colors.END}")
+        print(f" {package.id:2d} | {package.address:<39}| {deadline_str:<14}|{package.status:^15}|{package.truck_id:^10}|  {deadline_color}{delivery_str}{Colors.END}")
 
 
 def print_truck_summary(trucks: list[Truck]) -> None:
