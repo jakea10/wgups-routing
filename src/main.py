@@ -55,6 +55,10 @@ def load_package_data(package_file: str, hash_table: HashTable) -> None:
             # Create the Package object using the transformed dict
             package = Package.from_dict(row)
 
+            # Handle hub arrival time
+            if package.notes and "Delayed" in package.notes:
+                package.hub_arrival_time = datetime.time(9, 5)
+
             # Insert the package into the provided hash_table
             hash_table[package.id] = package
 
@@ -171,12 +175,14 @@ def assign_packages_to_trucks(packages: HashTable, trucks: list[Truck], address_
     # Assign truck 2 only packages
     for package in truck2_only:
         trucks[1].add_package(package)
+        # packages[package.id].truck_id = trucks[1].id
         packages[package.id].status = PackageStatus.EN_ROUTE
 
     # Assign delayed packages to truck 2 (departs after 9:05 AM)
     for package in delayed_packages:
         trucks[1].add_package(package)
-        packages[package.id].status = PackageStatus.EN_ROUTE
+        # packages[package.id].truck_id = trucks[1].id
+        # packages[package.id].status = PackageStatus.EN_ROUTE
     
     # Assign early deadline packages to truck 1 (departs first)
     for package in early_deadline:
@@ -318,14 +324,15 @@ def deliver_packages(
     truck.current_location_id = HUB_ADDRESS_ID
 
 
-def print_package_status(packages: HashTable, current_time: datetime.time | None = None) -> None:
-    """Print status of all packages, optionally filtered by time."""
+def print_package_status(packages: HashTable) -> None:
+    """Print status of all packages."""
     print("\n" + f"{Colors.BOLD}={Colors.END}" * 80)
     print(f"\t{Colors.BOLD}PACKAGE STATUS REPORT{Colors.END}")
     print(f"{Colors.BOLD}={Colors.END}" * 80)
-    if current_time:
-        print(f"Status as of: {current_time.strftime('%I:%M %p')}")
 
+    # Print header row
+    print(" ID |" + "Address".center(40) + "|" + "Deadline".center(15) + "|" + "Status".center(15) + "|" + "Truck ID".center(10) + "|" + "Delivery Time")
+    print("-" * 102)
     for package_id in sorted(packages.keys):
         package = packages[package_id]
         deadline_str = package.delivery_deadline.strftime('%I:%M %p') if package.delivery_deadline != EOD_TIME else 'EOD'
@@ -334,9 +341,7 @@ def print_package_status(packages: HashTable, current_time: datetime.time | None
             deadline_color = Colors.YELLOW
         else:
             deadline_color = Colors.GREEN if package.delivery_time < package.delivery_deadline else Colors.RED
-        print(f"Package {package.id:2d}: {package.address:<40} | "
-              f"Deadline: {deadline_str:8} | Status: {package.status:<12} | "
-              f"Delivered: {deadline_color}{delivery_str}{Colors.END}")
+        print(f" {package.id:2d} | {package.address:<39}| {deadline_str:<14}|{package.status:^15}|{package.truck_id:^10}|  {deadline_color}{delivery_str}{Colors.END}")
 
 
 def print_truck_summary(trucks: list[Truck]) -> None:
@@ -375,12 +380,14 @@ def lookup_package_at_time(package_id: int, lookup_time: datetime.time, packages
 
     # If package hasn't been delivered yet or delivery time is after lookup time
     if not package.delivery_time or package.delivery_time > lookup_time:
-        if package.loaded_time < lookup_time:
-            return f"Package {package_id} is en route"
+        if package.notes and "Delayed" in package.notes and package.hub_arrival_time > lookup_time:
+            return f"{Colors.RED}Package {package_id} is delayed{Colors.END}"
+        if package.loaded_time < lookup_time and package.hub_arrival_time < lookup_time:
+            return f"{Colors.BLUE}Package {package_id} is en route{Colors.END}"
         else:
-            return f"Package {package_id} is at the hub"
+            return f"{Colors.YELLOW}Package {package_id} is at the hub{Colors.END}"
     else:
-        return f"Package {package_id} delivered at {package.delivery_time.strftime('%I:%M %p')}"
+        return f"{Colors.GREEN}Package {package_id} delivered at {package.delivery_time.strftime('%I:%M %p')}{Colors.END}"
 
 
 # ------------------------------------------------------------------------------
@@ -418,6 +425,8 @@ def main():
     # Simulate deliveries truck 2
     trucks[1].current_time = datetime.time(9, 5)
     print(f"Delivering packages for Truck {trucks[1].id} (start time: {trucks[1].current_time})...")
+    for package in trucks[1].packages_on_board:
+        package.status = PackageStatus.EN_ROUTE
     deliver_packages(trucks[1], distance_matrix, address_to_id_map, packages)
 
     # Handle special case: Package 9 has wrong address until 10:20 AM
